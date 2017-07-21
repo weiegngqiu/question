@@ -1,0 +1,39 @@
+#encoding:utf-8
+import urllib2
+import re
+#获取网页内容
+def getHtml(url):
+    req=urllib2.Request(url)
+    req.add_header('User-Agent','Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/49.0.2623.22 Safari/537.36 SE 2.X MetaSr 1.0')
+    html=urllib2.urlopen(req)
+    html=html.read()
+    return html
+#获取图片链接
+def get_photo(html):
+    respon=re.compile(r'src="(.*?)"',re.S)
+    photo_link=re.findall(respon,html)
+    temp=0
+    for link in photo_link:
+        if '.png' in link:
+            print link
+            temp+=1
+            filename='%s.png'%temp
+            print filename
+            download_img(link,filename)
+#下载图片链接到本地
+def download_img(link,filename):
+    link_req=urllib2.Request(link)
+    opener=urllib2.build_opener()
+    img_resp=opener.open(link_req)
+    try:
+        fp=open(filename,'wb')
+        fp.write(img_resp.read())
+        fp.flush()
+        fp.close()
+    except:
+        print 'It is error'
+
+
+url='http://gl.sanguosha.com/'
+html=getHtml(url)
+get_photo(html)
