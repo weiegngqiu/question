@@ -1,0 +1,55 @@
+1.首先是获取单一网页内容：
+
+def getHtml(url):
+    req=urllib2.Request(url)
+    req.add_header('User-Agent','Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/49.0.2623.22 Safari/537.36 SE 2.X MetaSr 1.0')
+    html=urllib2.urlopen(req)
+    html=html.read()
+    return html
+ 
+
+2.获取单一网页新闻标题以及正文(并对标题以及正文内容做过滤操作)：
+
+def getDetail(html):
+    get_title=re.compile(r'<h3.*>(.*?)</h3>',re.S|re.I)
+    titles=re.findall(get_title,html)
+    for title in titles:
+        print title
+    get_content=re.compile(r'<span.*?>(.*?)</span>',re.S|re.I)
+    details=re.findall(get_content,html)
+    for one in details:
+        print getText(one),
+注意事项：要使 Python 输出时不换行的方法有
+
+python 2.x, print 不换行
+>>> print x, 
+python 3.x print 不换行
+>>> print(x, end="")
+
+
+3.获取网页的链接（得到链接后进而获取标题以及正文内容）：
+
+def getlink(html):
+    relink=re.compile(r'<li><a href="(.*?)"',re.S)
+    links=re.findall(relink,html)
+    for link in links:
+        print "链接是："+link
+        html=getHtml(link)
+        getDetail(html)
+ 
+
+4.最后就是获取页码网址，找到页码网址的规律：
+
+for i in range(2,3):
+    url='http://www.sxwsjs.gov.cn/wjywl02/index_%d.hrh'%i
+    html = getHtml(url)
+    getlink(html)
+注意事项：如果首页与第二页的网址规律不好找，可以添加判断
+
+if i =0:
+
+url=********************************
+
+else:
+
+url=********************************
