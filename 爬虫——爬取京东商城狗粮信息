@@ -1,0 +1,50 @@
+#encoding:utf-8
+import urllib2
+import urllib
+from bs4 import BeautifulSoup
+def get_html(keyword):
+    url = 'https://search.jd.com/Search?keyword=%s&enc=utf-8'%urllib.quote(keyword)
+    response=urllib2.Request(url)
+    response.add_header('User-Agent','Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/54.0.2840.87 Safari/537.36')
+    html=urllib2.urlopen(response).read().decode('utf-8')
+    #print html
+    soup=BeautifulSoup(html)
+    li_all=soup.find_all('li','gl-item')
+    for li in li_all:
+        print "商品名称：",li.a['title']
+        print "商品编号：",li['data-sku']
+        #print "商品图片：",li.img['src']
+        #会报错，报错原因是KeyError,可能是没有这个key
+        #解决的方法有两种，第一种是捕捉异常，异常跳过；第二种是运用get方法
+        #第一种（用多了异常，会影响整个性能）
+        '''
+        try:
+            print "商品图片：",li.img['src']
+        except Exception as e:
+            pass(跳过)
+        '''
+        #第二种：
+        #print "商品详情页：",li.img.get('src')#————————返回的是None
+        #当然，如果发生这种情况应该要如何调试
+
+        try:
+            print "商品图片:",li.img['src']
+        #except Exception as e:
+        #    print "发生错误时的属性是什么",li.img.attrs
+        #{u'data-lazy-img': u'//img14.360buyimg.com/n7/jfs/t2746/241/1627172148/381842/2d58506c/5743cf46Nca7bbb9f.jpg', u'width': u'220', u'data-img': u'1', u'class': [u'err-product'], u'height': u'220'}
+        except Exception as e:
+            print li.img['data-lazy-img']
+        '''
+        if "src" in li.img:
+            img = li.img['src']
+        else:
+            img=li.img.get('data-lazy-img')
+        print "商品图片：",img
+        ————————img=li.img.get('src'),返回的结果当中前面几张图片都是None，所以先采用异常的方法
+        '''
+        print "商品价格" ,li.strong.get('data-price')
+        #还是会有一些价格显示不出来，分析网页源代码，标签是<i>价格</i>
+
+
+if __name__=="__main__":
+    get_html("狗粮")
